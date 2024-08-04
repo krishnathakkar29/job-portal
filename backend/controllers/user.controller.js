@@ -1,5 +1,5 @@
 import { TryCatch } from "../middlewares/error.middleware.js";
-import { ErrorHandler } from "../utils/utility.js";
+import { ErrorHandler, uploadFilesToCloudinary } from "../utils/utility.js";
 import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
@@ -23,6 +23,10 @@ export const register = TryCatch(async (req, res, next) => {
     return next(new ErrorHandler("User already exists with this email", 400));
   }
 
+  // const file = req.file;
+
+  // const result = uploadFilesToCloudinary([file]);
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   await User.create({
@@ -33,7 +37,6 @@ export const register = TryCatch(async (req, res, next) => {
     password: hashedPassword,
   });
 
-  console.log("yaha pahicha");
   return res.status(201).json({
     message: "Account created successfully.",
     success: true,
@@ -46,7 +49,7 @@ export const login = TryCatch(async (req, res, next) => {
   if (!email || !password || !role) {
     return next(new ErrorHandler("Please fill all credentials", 400));
   }
-
+  console.log(email, password, role);
   let user = await User.findOne({
     email,
   });

@@ -4,9 +4,14 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { RadioGroup } from "../ui/radio-group";
 import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { USER_API_END_POINT } from "@/utils/constant";
+import { toast } from "sonner";
 
 function Login() {
+  const navigate = useNavigate();
+
   const [input, setInput] = useState({
     email: "",
     password: "",
@@ -17,9 +22,24 @@ function Login() {
     setInput({ ...input, [e.target.name]: e.target.value });
   };
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
     console.log(input);
+    try {
+      const response = await axios.post(`${USER_API_END_POINT}/login`, input, {
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.data.success) {
+        navigate("/");
+        toast.success(response.data.message);
+        console.log(response.data.message);
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+      console.log(error);
+    }
   };
   return (
     <div>
@@ -78,9 +98,7 @@ function Login() {
               </div>
             </RadioGroup>
           </div>
-          <Button className="w-full my-4" type="submit">
-            Login
-          </Button>
+          <Button className="w-full my-4">Login</Button>
           <span className="text-sm">
             Don't have an account?{" "}
             <Link to="/signup" className="text-blue-600">

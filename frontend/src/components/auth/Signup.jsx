@@ -4,9 +4,14 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { RadioGroup } from "../ui/radio-group";
 import { Button } from "../ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import axios from "axios";
+import { USER_API_END_POINT } from "@/utils/constant";
 
 function Signup() {
+  const navigate = useNavigate();
+
   const [input, setInput] = useState({
     fullname: "",
     email: "",
@@ -24,9 +29,35 @@ function Signup() {
     setInput({ ...input, file: e.target.files?.[0] });
   };
 
-  const submitHandler = (e) => {
-    e.preventDefault()
-    console.log(input)
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("fullname", input.fullname);
+    formData.append("email", input.email);
+    formData.append("phoneNumber", input.phoneNumber);
+    formData.append("password", input.password);
+    formData.append("role", input.role);
+    if (input.file) {
+      formData.append("file", input.file);
+    }
+    try {
+      const response = await axios.post(
+        `${USER_API_END_POINT}/register`,
+        formData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      if (response.data.success) {
+        navigate("/login");
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+      console.log(error);
+    }
   };
   return (
     <div>
