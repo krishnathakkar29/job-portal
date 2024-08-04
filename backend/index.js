@@ -4,6 +4,13 @@ import cors from "cors";
 import "dotenv/config";
 import { connectDB } from "./utils/db.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
+
+import userRouter from "./routes/user.route.js";
+import companyRouter from "./routes/company.route.js";
+import jobRouter from "./routes/job.route.js";
+import applicationRouter from "./routes/application.route.js";
+
+
 const app = express();
 
 const port = process.env.PORT || 5000;
@@ -21,6 +28,11 @@ app.use(
     credentials: true,
   })
 );
+
+app.use("/api/v1/user", userRouter);
+app.use("/api/v1/company", companyRouter);
+app.use("/api/v1/job", jobRouter);
+app.use("/api/v1/application", applicationRouter);
 
 connectDB();
 

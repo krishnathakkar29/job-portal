@@ -1,14 +1,14 @@
-import { TryCatch } from "../middlewares/error.middleware";
+import { TryCatch } from "../middlewares/error.middleware.js";
 import { ErrorHandler } from "../utils/utility.js";
 import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
 export const register = TryCatch(async (req, res, next) => {
-  const { fullName, email, password, role, phoneNumber } = req.body;
+  const { fullname, email, password, role, phoneNumber } = req.body;
 
   if (
-    [fullName, password, email, role, phoneNumber].some(
+    [fullname, password, email, role, phoneNumber].some(
       (field) => field?.trim() === ""
     )
   ) {
@@ -23,16 +23,17 @@ export const register = TryCatch(async (req, res, next) => {
     return next(new ErrorHandler("User already exists with this email", 400));
   }
 
-  const hashedPassword = bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
   await User.create({
     email,
     phoneNumber,
-    fullName,
+    fullname,
     role,
     password: hashedPassword,
   });
 
+  console.log("yaha pahicha");
   return res.status(201).json({
     message: "Account created successfully.",
     success: true,
@@ -99,6 +100,43 @@ export const login = TryCatch(async (req, res, next) => {
 export const logout = TryCatch(async (req, res, next) => {
   return res.status(200).cookie("token", "", { maxAge: 0 }).json({
     message: "Logged out successfully.",
+    success: true,
+  });
+});
+
+export const updateProfile = TryCatch(async (req, res, next) => {
+  const { bio, skills, fullName, email, phoneNumber } = req.body;
+
+  let skillsArray;
+  if (skills) {
+    skillsArray = skills.split(",");
+  }
+  const userId = req.id;
+  let user = await User.findById(userId);
+  if (!user) {
+    return next(new ErrorHandler("User not found", 400));
+  }
+
+  if (fullName) user.fullname = fullName;
+  if (email) user.email = email;
+  if (phoneNumber) user.phoneNumber = phoneNumber;
+  if (bio) user.profile.bio = bio;
+  if (skills) user.profile.skills = skillsArray;
+
+  await user.save();
+
+  user = {
+    _id: user._id,
+    fullname: user.fullname,
+    email: user.email,
+    phoneNumber: user.phoneNumber,
+    role: user.role,
+    profile: user.profile,
+  };
+
+  return res.status(200).json({
+    message: "Profile updated successfully.",
+    user,
     success: true,
   });
 });
