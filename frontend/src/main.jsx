@@ -5,12 +5,16 @@ import App from "./App.jsx";
 import "./index.css";
 import { BrowserRouter } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner.jsx";
+import { Provider } from "react-redux";
+import { store } from "./redux/store.js";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
-      <Toaster />
+      <Provider store={store}>
+        <App />
+        <Toaster />
+      </Provider>
     </BrowserRouter>
   </React.StrictMode>
 );
