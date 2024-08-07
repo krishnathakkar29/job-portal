@@ -23,9 +23,9 @@ export const register = TryCatch(async (req, res, next) => {
     return next(new ErrorHandler("User already exists with this email", 400));
   }
 
-  // const file = req.file;
+  const file = req.file;
 
-  // const result = uploadFilesToCloudinary([file]);
+  const result = await uploadFilesToCloudinary([file]);
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -35,6 +35,9 @@ export const register = TryCatch(async (req, res, next) => {
     fullname,
     role,
     password: hashedPassword,
+    profile: {
+      profilePhoto: result[0].url,
+    },
   });
 
   return res.status(201).json({
@@ -114,6 +117,13 @@ export const updateProfile = TryCatch(async (req, res, next) => {
   if (skills) {
     skillsArray = skills.split(",");
   }
+
+  const file = req.file;
+  let result;
+  if (file) {
+    result = await uploadFilesToCloudinary([file]);
+  }
+
   const userId = req.id;
   let user = await User.findById(userId);
   if (!user) {
@@ -125,6 +135,10 @@ export const updateProfile = TryCatch(async (req, res, next) => {
   if (phoneNumber) user.phoneNumber = phoneNumber;
   if (bio) user.profile.bio = bio;
   if (skills) user.profile.skills = skillsArray;
+  if (result) {
+    user.profile.resume = result[0].url;
+    user.profile.resumeOriginalName = file.originalName;
+  }
 
   await user.save();
 

@@ -9,7 +9,7 @@ import axios from "axios";
 import { USER_API_END_POINT } from "@/utils/constant";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
-import { setLoading } from "@/redux/authSllice";
+import { setLoading, setUser } from "@/redux/authSllice";
 import { Loader2 } from "lucide-react";
 
 function Login() {
@@ -38,6 +38,7 @@ function Login() {
       });
 
       if (response.data.success) {
+        dispatch(setUser(response.data.user));
         navigate("/");
         toast.success(response.data.message);
         console.log(response.data.message);
@@ -57,7 +58,7 @@ function Login() {
           onSubmit={submitHandler}
           className="w-1/2 border border-gray-200 rounded-md p-4 my-10"
         >
-          <h1 className="font-bold text-xl mb-5">Sign Up</h1>
+          <h1 className="font-bold text-xl mb-5">Login</h1>
 
           <div className="my-2">
             <Label>Email</Label>

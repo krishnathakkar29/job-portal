@@ -1,12 +1,35 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { LogOut, User2 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { USER_API_END_POINT } from "@/utils/constant";
+import { toast } from "sonner";
+import { setUser } from "@/redux/authSllice";
 
-const user = false;
 function Navbar() {
+  const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const logoutHandler = async () => {
+    try {
+      const res = await axios.post(`${USER_API_END_POINT}/logout`, {
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        dispatch(setUser(null));
+        navigate("/");
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error?.response?.data?.message);
+    }
+  };
   return (
     <div className="bg-white">
       <div className="max-w-7xl mx-auto flex items-center justify-between h-16">
@@ -44,24 +67,21 @@ function Navbar() {
               <Popover>
                 <PopoverTrigger asChild>
                   <Avatar className="cursor-pointer">
-                    <AvatarImage
-                      src={"https://www.github.com/shadcn.png"}
-                      alt="user"
-                    />
+                    <AvatarImage src={user?.profile?.profilePhoto} alt="user" />
                   </Avatar>
                 </PopoverTrigger>
                 <PopoverContent className="min-w-3">
                   <div className="flex gap-4 items-center">
                     <Avatar>
                       <AvatarImage
-                        src={"https://www.github.com/shadcn.png"}
+                        src={user?.profile?.profilePhoto}
                         alt="user"
                       />
                     </Avatar>
                     <div>
-                      <h2 className="font-medium">Krishna</h2>
+                      <h2 className="font-medium">{user?.fullname}</h2>
                       <p className="text-sm text-muted-foreground">
-                        Lorem ipsum dolor sit amet.
+                        {user?.profile?.bio}
                       </p>
                     </div>
                   </div>
@@ -69,11 +89,16 @@ function Navbar() {
                     <div className="flex w-fit items-center gap-2 cursor-pointer">
                       <User2 />
 
-                      <Button variant="link">View Profile</Button>
+                      <Button variant="link">
+                        {" "}
+                        <Link to="/profile"> View Profile </Link>
+                      </Button>
                     </div>
                     <div className="flex w-fit items-center gap-2 cursor-pointer">
                       <LogOut />
-                      <Button variant="link">Logout</Button>
+                      <Button onClick={logoutHandler} variant="link">
+                        Logout
+                      </Button>
                     </div>
                   </div>
                 </PopoverContent>

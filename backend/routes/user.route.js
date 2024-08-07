@@ -13,6 +13,8 @@ const router = express.Router();
 router.route("/register").post(multerUpload.single("file"), register);
 router.route("/login").post(login);
 router.route("/logout").post(logout);
-router.route("/profile/update").post(isAuthenticated, updateProfile);
+router
+  .route("/profile/update")
+  .post(isAuthenticated, multerUpload.single("file"), updateProfile);
 
 export default router;
