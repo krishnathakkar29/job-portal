@@ -92,7 +92,12 @@ export const getAllJobs = TryCatch(async (req, res, next) => {
 export const getJobById = TryCatch(async (req, res, next) => {
   const jobId = req.params.id;
 
-  const job = await Job.findById(jobId);
+  const job = await Job.findById(jobId).populate({
+    path: "applications",
+    populate: {
+      path: "applicant",
+    },
+  });
 
   if (!job) {
     return next(new ErrorHandler("Jobs not Found", 400));

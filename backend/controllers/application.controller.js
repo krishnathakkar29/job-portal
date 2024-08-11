@@ -5,6 +5,8 @@ import { ErrorHandler } from "../utils/utility.js";
 
 export const applyJob = TryCatch(async (req, res, next) => {
   const jobId = req.params.id;
+  console.log("reached apply job par");
+  
   if (!jobId) {
     return next(new ErrorHandler("Invalid Job Application", 400));
   }

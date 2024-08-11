@@ -4,6 +4,15 @@ import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
+export const getMyProfile = TryCatch(async (req, res, next) => {
+  const user = await User.findById(req.id);
+
+  return res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
 export const register = TryCatch(async (req, res, next) => {
   const { fullname, email, password, role, phoneNumber } = req.body;
 
@@ -94,7 +103,7 @@ export const login = TryCatch(async (req, res, next) => {
     .cookie("token", token, {
       maxAge: 1 * 24 * 60 * 60 * 1000,
       httpOnly: true,
-      sameSite: "strict",
+      // sameSite: "strict",
     })
     .json({
       message: `Welcome back ${user.fullname}`,

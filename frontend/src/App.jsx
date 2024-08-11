@@ -8,7 +8,25 @@ import Jobs from "./pages/Jobs";
 import Browse from "./pages/Browse";
 import Profile from "./components/Profile";
 import JobDescription from "./components/JobDescription";
+import axios from "axios";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setUser } from "./redux/authSllice";
+import { server } from "./lib/config";
 function App() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    axios
+      .get(`${server}/api/v1/user/me`, { withCredentials: true })
+      .then(({ data }) => {
+        console.log(data.user)
+        dispatch(setUser(data.user));
+      })
+      .catch((err) => {
+        console.log(err);
+        dispatch(setUser(null));
+      });
+  }, [dispatch]);
   return (
     <>
       <Routes>

@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  getMyProfile,
   login,
   logout,
   register,
@@ -10,6 +11,7 @@ import { multerUpload } from "../middlewares/multer.middleware.js";
 
 const router = express.Router();
 
+router.route("/me").get(isAuthenticated, getMyProfile);
 router.route("/register").post(multerUpload.single("file"), register);
 router.route("/login").post(login);
 router.route("/logout").post(logout);
